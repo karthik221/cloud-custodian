@@ -1,6 +1,6 @@
 # Copyright The Cloud Custodian Authors.
 # SPDX-License-Identifier: Apache-2.0
-from c7n.actions import Action
+from c7n.actions import Action, BaseAction
 from c7n.filters.vpc import SecurityGroupFilter, SubnetFilter
 from c7n.manager import resources
 from c7n.filters.kms import KmsRelatedFilter
@@ -152,5 +152,42 @@ class Delete(Action):
         for r in resources:
             try:
                 client.delete_cluster(ClusterArn=r['ClusterArn'])
+            except client.exceptions.NotFoundException:
+                continue
+
+
+@resources.register('kafka-config')
+class KafkaClusterConfiguration(QueryResourceManager):
+    """ Resource Manager for MSK Kafka Configuration.
+    """
+
+    class resource_type(TypeInfo):
+        service = 'kafka'
+        enum_spec = ('list_configurations', 'Configurations', None)
+        name = id = 'Arn'
+        arn = 'Arn'
+        date = 'CreationTime'
+        permissions_augment = ("kafka:ListConfigurations",)
+
+
+@KafkaClusterConfiguration.action_registry.register('delete')
+class DeleteClusterConfiguration(BaseAction):
+    """Delete an MSK Cluster Configuration.
+    :example:
+    .. code-block:: yaml
+            policies:
+              - name: msk-delete-cluster-configuration
+                resource: aws.kafka-config
+                actions:
+                    - delete
+    """
+    schema = type_schema('delete')
+    permissions = ('kafka:DeleteConfiguration',)
+
+    def process(self, resources):
+        client = local_session(self.manager.session_factory).client('kafka')
+        for r in resources:
+            try:
+                client.delete_configuration(Arn=r['Arn'])
             except client.exceptions.NotFoundException:
                 continue

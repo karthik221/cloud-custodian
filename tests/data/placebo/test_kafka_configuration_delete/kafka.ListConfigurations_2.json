@@ -4,16 +4,16 @@
         "ResponseMetadata": {},
         "Configurations": [
             {
-                "Arn": "arn:aws:kafka:us-east-1:644160558196:configuration/foo-config/728ce406-bcf8-4b0e-b3e3-3e2047e1c224-7",
+                "Arn": "arn:aws:kafka:us-east-1:644160558196:configuration/foo-config/72932df0-5080-40d1-b801-49fa8580952b-7",
                 "CreationTime": {
                     "__class__": "datetime",
                     "year": 2024,
                     "month": 11,
                     "day": 26,
-                    "hour": 3,
-                    "minute": 17,
-                    "second": 35,
-                    "microsecond": 102000
+                    "hour": 21,
+                    "minute": 22,
+                    "second": 54,
+                    "microsecond": 890000
                 },
                 "KafkaVersions": [],
                 "LatestRevision": {
@@ -22,10 +22,10 @@
                         "year": 2024,
                         "month": 11,
                         "day": 26,
-                        "hour": 3,
-                        "minute": 17,
-                        "second": 35,
-                        "microsecond": 102000
+                        "hour": 21,
+                        "minute": 22,
+                        "second": 54,
+                        "microsecond": 890000
                     },
                     "Revision": 1
                 },

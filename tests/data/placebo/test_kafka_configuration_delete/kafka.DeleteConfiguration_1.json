@@ -2,7 +2,7 @@
     "status_code": 200,
     "data": {
         "ResponseMetadata": {},
-        "Arn": "arn:aws:kafka:us-east-1:644160558196:configuration/foo-config/728ce406-bcf8-4b0e-b3e3-3e2047e1c224-7",
+        "Arn": "arn:aws:kafka:us-east-1:644160558196:configuration/foo-config/72932df0-5080-40d1-b801-49fa8580952b-7",
         "State": "DELETING"
     }
 }

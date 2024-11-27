@@ -1,6 +1,6 @@
 # Copyright The Cloud Custodian Authors.
 # SPDX-License-Identifier: Apache-2.0
-from c7n.actions import Action, BaseAction
+from c7n.actions import Action
 from c7n.filters.vpc import SecurityGroupFilter, SubnetFilter
 from c7n.manager import resources
 from c7n.filters.kms import KmsRelatedFilter
@@ -171,7 +171,7 @@ class KafkaClusterConfiguration(QueryResourceManager):
 
 
 @KafkaClusterConfiguration.action_registry.register('delete')
-class DeleteClusterConfiguration(BaseAction):
+class DeleteClusterConfiguration(Action):
     """Delete an MSK Cluster Configuration.
     :example:
     .. code-block:: yaml

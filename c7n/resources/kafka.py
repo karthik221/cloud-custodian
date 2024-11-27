@@ -172,14 +172,17 @@ class KafkaClusterConfiguration(QueryResourceManager):
 
 @KafkaClusterConfiguration.action_registry.register('delete')
 class DeleteClusterConfiguration(Action):
-    """Delete an MSK Cluster Configuration.
+    """Delete MSK Cluster Configuration.
+
     :example:
+
     .. code-block:: yaml
+
             policies:
               - name: msk-delete-cluster-configuration
                 resource: aws.kafka-config
                 actions:
-                    - delete
+                  - type: delete
     """
     schema = type_schema('delete')
     permissions = ('kafka:DeleteConfiguration',)

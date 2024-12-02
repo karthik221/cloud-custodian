@@ -1,0 +1,81 @@
+{
+    "status_code": 200,
+    "data": {
+        "ResponseMetadata": {},
+        "FileSystems": [
+            {
+                "OwnerId": "644160558196",
+                "CreationToken": "3d2f5cad-e58c-4e8f-9f34-3faf2a5c2fe3",
+                "FileSystemId": "fs-05d7275c13b689160",
+                "FileSystemArn": "arn:aws:elasticfilesystem:us-east-1:644160558196:file-system/fs-05d7275c13b689160",
+                "CreationTime": {
+                    "__class__": "datetime",
+                    "year": 2024,
+                    "month": 12,
+                    "day": 1,
+                    "hour": 15,
+                    "minute": 55,
+                    "second": 47,
+                    "microsecond": 0
+                },
+                "LifeCycleState": "creating",
+                "NumberOfMountTargets": 0,
+                "SizeInBytes": {
+                    "Value": 0,
+                    "ValueInIA": 0,
+                    "ValueInStandard": 0,
+                    "ValueInArchive": 0
+                },
+                "PerformanceMode": "generalPurpose",
+                "Encrypted": false,
+                "ThroughputMode": "bursting",
+                "Tags": [],
+                "FileSystemProtection": {
+                    "ReplicationOverwriteProtection": "ENABLED"
+                }
+            },
+            {
+                "OwnerId": "644160558196",
+                "CreationToken": "quickCreated-cc3aa3da-0442-45ce-a38e-26681031d2b0",
+                "FileSystemId": "fs-0b9dd77273e82cda9",
+                "FileSystemArn": "arn:aws:elasticfilesystem:us-east-1:644160558196:file-system/fs-0b9dd77273e82cda9",
+                "CreationTime": {
+                    "__class__": "datetime",
+                    "year": 2024,
+                    "month": 12,
+                    "day": 1,
+                    "hour": 15,
+                    "minute": 41,
+                    "second": 12,
+                    "microsecond": 0
+                },
+                "LifeCycleState": "available",
+                "Name": "foo-file-1",
+                "NumberOfMountTargets": 5,
+                "SizeInBytes": {
+                    "Value": 6144,
+                    "ValueInIA": 0,
+                    "ValueInStandard": 6144,
+                    "ValueInArchive": 0
+                },
+                "PerformanceMode": "generalPurpose",
+                "Encrypted": true,
+                "KmsKeyId": "arn:aws:kms:us-east-1:644160558196:key/aac1ed45-4997-4ece-ba81-97299a15b258",
+                "ThroughputMode": "elastic",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "foo-file-1"
+                    },
+                    {
+                        "Key": "aws:elasticfilesystem:default-backup",
+                        "Value": "enabled"
+                    }
+                ],
+                "FileSystemProtection": {
+                    "ReplicationOverwriteProtection": "ENABLED"
+                }
+            }
+        ]
+    }
+}

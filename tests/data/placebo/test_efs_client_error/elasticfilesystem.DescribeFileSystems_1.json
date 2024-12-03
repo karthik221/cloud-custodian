@@ -5,17 +5,17 @@
         "FileSystems": [
             {
                 "OwnerId": "644160558196",
-                "CreationToken": "4ca2f797-024b-4acd-b124-3667796192e6",
-                "FileSystemId": "fs-08f97433723f431a6",
-                "FileSystemArn": "arn:aws:elasticfilesystem:us-east-1:644160558196:file-system/fs-08f97433723f431a6",
+                "CreationToken": "15c6b7b4-b490-447e-ac68-e346253084db",
+                "FileSystemId": "fs-00a56cc8f138d4765",
+                "FileSystemArn": "arn:aws:elasticfilesystem:us-east-1:644160558196:file-system/fs-00a56cc8f138d4765",
                 "CreationTime": {
                     "__class__": "datetime",
                     "year": 2024,
                     "month": 12,
                     "day": 2,
                     "hour": 23,
-                    "minute": 10,
-                    "second": 9,
+                    "minute": 11,
+                    "second": 42,
                     "microsecond": 0
                 },
                 "LifeCycleState": "creating",
@@ -24,38 +24,6 @@
                     "Value": 0,
                     "ValueInIA": 0,
                     "ValueInStandard": 0,
-                    "ValueInArchive": 0
-                },
-                "PerformanceMode": "generalPurpose",
-                "Encrypted": true,
-                "KmsKeyId": "arn:aws:kms:us-east-1:644160558196:key/d38e6df4-3a19-4516-9f4b-ab568e9bccc5",
-                "ThroughputMode": "bursting",
-                "Tags": [],
-                "FileSystemProtection": {
-                    "ReplicationOverwriteProtection": "ENABLED"
-                }
-            },
-            {
-                "OwnerId": "644160558196",
-                "CreationToken": "408b1905-f729-466f-a480-caf7292266c9",
-                "FileSystemId": "fs-073422db4261dd7dc",
-                "FileSystemArn": "arn:aws:elasticfilesystem:us-east-1:644160558196:file-system/fs-073422db4261dd7dc",
-                "CreationTime": {
-                    "__class__": "datetime",
-                    "year": 2024,
-                    "month": 12,
-                    "day": 2,
-                    "hour": 23,
-                    "minute": 10,
-                    "second": 4,
-                    "microsecond": 0
-                },
-                "LifeCycleState": "deleting",
-                "NumberOfMountTargets": 0,
-                "SizeInBytes": {
-                    "Value": 6144,
-                    "ValueInIA": 0,
-                    "ValueInStandard": 6144,
                     "ValueInArchive": 0
                 },
                 "PerformanceMode": "generalPurpose",

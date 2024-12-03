@@ -427,9 +427,11 @@ class RemovePolicyStatement(RemovePolicyBase):
                 resource['Policy'] = client.describe_file_system_policy(
                     FileSystemId=resource['FileSystemId']).get('Policy')
             except ClientError as e:
-                if e.response['Error']['Code'] != "ResourceNotFoundException":
+                if e.response['Error']['Code'] != "FileSystemNotFound":
                     raise
-                resource['Policy'] = None
+
+        if not resource['Policy']:
+            return
 
         p = json.loads(resource['Policy'])
         statements, found = self.process_policy(
@@ -443,8 +445,7 @@ class RemovePolicyStatement(RemovePolicyBase):
         else:
             client.put_file_system_policy(
                 FileSystemId=resource['FileSystemId'],
-                Policy=json.dumps(p),
-                BypassPolicyLockoutSafetyCheck=True
+                Policy=json.dumps(p)
             )
         return {'Name': resource['FileSystemId'],
                 'State': 'PolicyRemoved',

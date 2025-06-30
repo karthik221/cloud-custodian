@@ -1,0 +1,11 @@
+2025-06-29 19:06:13,699 - custodian.policy - DEBUG - Running policy:filter-tag-aws-account resource:aws.account region:us-east-1 c7n:0.9.45
+2025-06-29 19:06:19,966 - custodian.resources.account - DEBUG - Filtered from 1 to 1 account
+2025-06-29 19:06:19,966 - custodian.policy - INFO - policy:filter-tag-aws-account resource:aws.account region:us-east-1 count:1 time:6.27
+2025-06-29 19:06:19,972 - custodian.output - DEBUG - metric:ResourceCount Count:1 policy:filter-tag-aws-account restype:aws.account scope:policy
+2025-06-29 19:06:19,972 - custodian.output - DEBUG - metric:ApiCalls Count:1 policy:filter-tag-aws-account restype:aws.account
+2025-06-29 22:36:40,282 - custodian.policy - DEBUG - Running policy:filter-tag-aws-account resource:aws.account region:us-east-1 c7n:0.9.45
+2025-06-29 22:36:40,560 - custodian.resources.account - DEBUG - Filtered from 1 to 1 account
+2025-06-29 22:36:40,561 - custodian.policy - INFO - policy:filter-tag-aws-account resource:aws.account region:us-east-1 count:1 time:0.28
+2025-06-29 22:37:28,091 - custodian.policy - INFO - policy:filter-tag-aws-account action:tagaccount resources:1 execution_time:47.53
+2025-06-29 22:37:28,104 - custodian.output - DEBUG - metric:ResourceCount Count:1 policy:filter-tag-aws-account restype:aws.account scope:policy
+2025-06-29 22:37:28,104 - custodian.output - DEBUG - metric:ApiCalls Count:2 policy:filter-tag-aws-account restype:aws.account

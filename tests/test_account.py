@@ -7,7 +7,7 @@ from c7n.executor import MainThreadExecutor
 from c7n.utils import local_session, format_string_values
 from c7n.resources import account
 from c7n.testing import mock_datetime_now
-
+from c7n.resources.account import Account
 from pytest_terraform import terraform
 
 import datetime
@@ -1469,7 +1469,111 @@ class AccountTests(BaseTest):
 
         self.assertEqual(2, response['SummaryMap']['GlobalEndpointTokenVersion'])
 
+    def test_get_account_tags(self):
+        self.patch(Account, "executor_factory", MainThreadExecutor)
+        session_factory = self.record_flight_data("test_get_account_tags")
+        #client = session_factory().client("organizations")
 
+        policy = self.load_policy(
+            {
+                "name": "test-get-account-tags",
+                "resource": "aws.account",
+                "filters": [{"tag:first_tag": "first"}],
+            },
+            session_factory=session_factory,
+        )
+
+        resources = policy.run()
+        client = session_factory().client("organizations")
+        account_id = '644160558196'
+
+        response = client.list_tags_for_resource(ResourceId=account_id)
+        account_tags = response.get('Tags', [])
+    
+        tags = {t["Key"]: t["Value"] for t in account_tags}
+        self.assertEqual(tags["first_tag"], "first")
+        
+    # def test_account_tag(self):
+    #     self.patch(Account, "executor_factory", MainThreadExecutor)
+    #     session_factory = self.record_flight_data("test_account_tag")
+    #     client = session_factory().client("organizations")
+    #     p = self.load_policy(
+    #         {
+    #             "name": "account-tag",
+    #             "resource": "account",
+    #             "actions": [{"type": "tag", "tags": [{"Key": "new_tag_key", "Value": "new_tag_value"}]}],
+    #         },
+    #         config={"account_id": "644160558196"},
+    #         session_factory=session_factory,
+    #     )
+    #     p.run()
+        
+    #     account_id = '644160558196'
+    #     response = client.list_tags_for_resource(ResourceId=account_id)
+    #     account_tags = response.get('Tags', [])
+    #     tag_map = {t["Key"]: t["Value"] for t in account_tags}
+    #     self.assertEqual(
+    #         {
+    #             "first_tag": "first",
+    #             "second_tag": "second",
+    #             "new_tag_key": "new_tag_value",
+    #         },
+    #         tag_map,
+    #     )
+        
+        
+    def test_account_tag(self):
+        # Use the same test pattern as other account tests
+        self.patch(Account, "executor_factory", MainThreadExecutor)
+        session_factory = self.replay_flight_data("test_account_tag")
+        client = session_factory().client("organizations")
+        account_id = '644160558196'
+
+        # Pre-check: ensure the tag does not exist
+        response = client.list_tags_for_resource(ResourceId=account_id)
+        tag_map = {t["Key"]: t["Value"] for t in response.get('Tags', [])}
+        self.assertNotIn("new_tag_key", tag_map)
+
+        # Run the policy that triggers TagAccount
+        p = self.load_policy(
+            {
+                "name": "account-tag",
+                "resource": "account",
+                "filters": [],
+                "actions": [{"type": "tag", "tags": {"new_tag_key": "new_tag_value"}}],
+            },
+            #config={"account_id": account_id},
+            session_factory=session_factory,
+        )
+        resources = p.run()
+        self.assertEqual(len(resources), 1)
+
+        # Post-check: ensure the tag was added
+        response = client.list_tags_for_resource(ResourceId=account_id)
+        tag_map = {t["Key"]: t["Value"] for t in response.get('Tags', [])}
+        self.assertIn("new_tag_key", tag_map)
+    
+ 
+    def test_account_remove_tag(self):
+        session_factory = self.record_flight_data("test_account_remove_tag")
+        p = self.load_policy(
+            {
+                'name': "test-account-tag",
+                'resource': "account",
+                'filters': [],
+                'actions': [{'type': 'remove-tag', 'tags': ['Environment']}]
+            },
+            session_factory=session_factory
+        )
+        resources = p.run()
+        account_id = '644160558196'
+        
+        client = session_factory().client("organizations")
+        response = client.list_tags_for_resource(ResourceId=account_id)
+        account_tags = response.get('Tags', [])
+        self.assertFalse("Environment" in account_tags)
+        
+        
 class AccountDataEvents(BaseTest):
 
     def make_bucket(self, session_factory, name):

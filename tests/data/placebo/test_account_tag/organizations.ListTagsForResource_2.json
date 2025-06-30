@@ -1,0 +1,28 @@
+{
+    "status_code": 200,
+    "data": {
+        "Tags": [
+            {
+                "Key": "Environment",
+                "Value": "Production"
+            },
+            {
+                "Key": "first_tag",
+                "Value": "first"
+            },
+            {
+                "Key": "new_tag_key",
+                "Value": "new_tag_value"
+            },
+            {
+                "Key": "test1",
+                "Value": "test1_value"
+            },
+            {
+                "Key": "second_tag",
+                "Value": "second"
+            }
+        ],
+        "ResponseMetadata": {}
+    }
+}

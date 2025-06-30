@@ -1,0 +1,96 @@
+{
+  "policy": {
+    "name": "filter-tag-aws-account",
+    "resource": "aws.account",
+    "description": "Tag AWS account with Environment=Production",
+    "filters": [
+      {
+        "tag:Environment": "absent"
+      }
+    ],
+    "actions": [
+      {
+        "type": "tag",
+        "tags": {
+          "Environment": "Production",
+          "test1": "test1_value"
+        }
+      }
+    ]
+  },
+  "version": "0.9.45",
+  "execution": {
+    "id": "49bfee5c-2ab2-48a3-b7ca-4dc45ee36c93",
+    "start": 1751251000.2693372,
+    "end_time": 1751251048.093218,
+    "duration": 47.82388091087341
+  },
+  "config": {
+    "region": "us-east-1",
+    "regions": [
+      "us-east-1"
+    ],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": "644160558196",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "/Users/karthik221/workspaces/c7n/4-cut/cloud-custodian",
+    "cache_period": 0,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "/Users/karthik221/workspaces/c7n/4-cut/cloud-custodian/c7n/test-account-action-tags.yaml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": 1,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {
+    "num_threads": 1,
+    "snapshot_time": 47.82391381263733,
+    "num_fds": 2,
+    "cpu_user": 0.3743779840000001,
+    "cpu_system": 0.085834032,
+    "num_ctx_switches_voluntary": 2238,
+    "rss": 12664832,
+    "vms": 45137920,
+    "pfaults": 1118
+  },
+  "api-stats": {
+    "iam.ListAccountAliases": 1,
+    "organizations.TagResource": 1
+  },
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-06-29T22:36:40.561156",
+      "Value": 1,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-06-29T22:36:40.561168",
+      "Value": 0.27814292907714844,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2025-06-29T22:37:28.093147",
+      "Value": 47.529620885849,
+      "Unit": "Seconds"
+    }
+  ]
+}

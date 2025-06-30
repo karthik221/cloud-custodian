@@ -1,0 +1,12 @@
+
+policies:
+  - name: filter-tag-aws-account
+    resource: aws.account 
+    description: "Tag AWS account with Environment=Production"
+    filters:
+      - "tag:Environment": absent
+    actions:
+      - type: tag
+        tags:
+          Environment: Production
+          test1: test1_value

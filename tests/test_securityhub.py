@@ -4,7 +4,7 @@
 from c7n.exceptions import PolicyValidationError
 from c7n.resources.aws import shape_validate
 from .common import BaseTest, event_data
-
+from c7n.resources.account import Account
 import logging
 import time
 
@@ -522,6 +522,7 @@ class SecurityHubTest(BaseTest):
             session_factory=factory,
         )
 
+        Account.action_registry.unregister('tag')
         resources = policy.run()
         self.assertEqual(len(resources), 1)
 

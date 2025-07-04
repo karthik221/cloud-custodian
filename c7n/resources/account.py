@@ -21,7 +21,8 @@ from c7n.manager import resources
 from c7n.utils import local_session, type_schema, generate_arn, get_support_region, jmespath_search
 from c7n.query import QueryResourceManager, TypeInfo, DescribeSource
 from c7n.filters import ListItemFilter
-
+from c7n.tags import (
+    RemoveTag, Tag)
 from c7n.resources.iam import CredentialReport
 from c7n.resources.securityhub import OtherResourcePostFinding
 
@@ -2638,3 +2639,55 @@ class SetSecurityTokenServicePreferences(BaseAction):
         client.set_security_token_service_preferences(
             GlobalEndpointTokenVersion=token_version
         )
+
+
+@actions.register('tag')
+class TagAccount(Tag):
+    """Action to create tag(s) on a AWS Account
+    :example:
+    .. code-block:: yaml
+            policies:
+              - name: tag-account
+                resource: account
+                filters:
+                  - "tag:target-tag": absent
+                actions:
+                  - type: tag
+                    key: target-tag
+                    value: target-tag-value
+    """
+
+    permissions = ('organizations:TagResource',)
+    batch_size = 1
+
+    def process_resource_set(self, client, resource_set, tags):
+        client = local_session(self.manager.session_factory).client('organizations')
+        for r in resource_set:
+            client.tag_resource(
+                ResourceId=r['account_id'],
+                Tags=tags)
+
+
+@actions.register('remove-tag')
+class UntagAccount(RemoveTag):
+    """Action to remove tag(s) on a Managed Workflow for Apache Airflow environment
+    :example:
+    .. code-block:: yaml
+            policies:
+              - name: account-remove-tag
+                resource: account
+                filters:
+                  - "tag:OutdatedTag": present
+                actions:
+                  - type: remove-tag
+                    tags: ["OutdatedTag"]
+    """
+
+    permissions = ('organizations:UntagResource',)
+
+    def process_resource_set(self, client, resource_set, tag_keys):
+        client = local_session(self.manager.session_factory).client('organizations')
+        for r in resource_set:
+            client.untag_resource(
+                ResourceId=r['account_id'],
+                TagKeys=tag_keys)

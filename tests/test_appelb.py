@@ -736,7 +736,31 @@ class AppELBTest(BaseTest):
             'AWS/NetworkELB.TCP_ELB_Reset_Count.Sum.0.25' in resources[
                 0]['c7n.metrics'])
 
+    def test_appelb_delete_listener(self):
+        self.patch(AppELB, "executor_factory", MainThreadExecutor)
+        session_factory = self.replay_flight_data("test_appelb_delete_listener")
+        client = session_factory().client("elbv2")
+        # Create a policy that deletes listeners on a specific port
+        p = self.load_policy(
+            {
+                "name": "appelb-delete-listener",
+                "resource": "app-elb",
+                "filters": [
+                    {"type": "listener", "key": "[Protocol, Port]", "value": ["HTTP", 5432]}
+                ],
+                "actions": [{"type": "delete-listener"}],
+            },
+            session_factory=session_factory,
+        )
+        resources = p.run()
+        arn = resources[0]["LoadBalancerArn"]
+        listeners = client.describe_listeners(LoadBalancerArn=arn)["Listeners"]
+        # Assert that no listeners remain on the specified port
+        for l in listeners:
+            assert not (l["Protocol"] == "HTTP" and l["Port"] == 5432)
 
+    
+        
 class AppELBHealthcheckProtocolMismatchTest(BaseTest):
 
     def test_appelb_healthcheck_protocol_mismatch_filter_good(self):

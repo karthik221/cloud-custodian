@@ -759,8 +759,7 @@ class AppELBTest(BaseTest):
         for l in listeners:
             assert not (l["Protocol"] == "HTTP" and l["Port"] == 5432)
 
-    
-        
+
 class AppELBHealthcheckProtocolMismatchTest(BaseTest):
 
     def test_appelb_healthcheck_protocol_mismatch_filter_good(self):

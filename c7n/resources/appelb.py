@@ -1453,12 +1453,12 @@ class AppELBDeleteListenerAction(BaseAction):
         client = local_session(self.manager.session_factory).client('elbv2')
         for alb in albs:
             # You may want to filter listeners to delete only specific ones
-        
+
             listeners = alb.get('c7n:MatchedListeners', [])
-            
+
             for listener in listeners:
                 try:
-                    client.delete_listener(ListenerArn=listener['ListenerArn'])
-                    self.log.info(f"Deleted listener {listener['ListenerArn']} from {alb['LoadBalancerArn']}")
+                    client.delete_listener(
+                        ListenerArn=listener['ListenerArn'])
                 except client.exceptions.ListenerNotFoundException:
                     continue

@@ -1431,19 +1431,20 @@ class AppELBTargetGroupModifyAttributes(BaseAction):
 class AppELBDeleteListenerAction(BaseAction):
     """Action to delete listeners from an Application Load Balancer.
 
-    # Delete only those listeners caught by the filter  (default)
-    actions:
-    - type: delete-listener
-        scope: matched          #(default)
-
-    # Delete ALL listeners on every filtered LB
-    actions:
-    - type: delete-listener
-        scope: all
 
     :example:
 
     .. code-block:: yaml
+
+        # Delete only those listeners caught by the filter  (default)
+        actions:
+        - type: delete-listener
+          scope: matched
+
+        # Delete ALL listeners on every filtered LB
+        actions:
+        - type: delete-listener
+          scope: all
 
         policies:
           - name: delete-alb-listeners

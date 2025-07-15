@@ -3,9 +3,9 @@
     "data": {
         "Listeners": [
             {
-                "ListenerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:listener/app/alb-testing-2/95e544fad78114e5/11a481714e91f3a7",
+                "ListenerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:listener/app/alb-testing-2/95e544fad78114e5/03f45d496b908c2f",
                 "LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:loadbalancer/app/alb-testing-2/95e544fad78114e5",
-                "Port": 5432,
+                "Port": 8082,
                 "Protocol": "HTTP",
                 "DefaultActions": [
                     {
@@ -28,9 +28,9 @@
                 ]
             },
             {
-                "ListenerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:listener/app/alb-testing-2/95e544fad78114e5/54de70d8fddcb64f",
+                "ListenerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:listener/app/alb-testing-2/95e544fad78114e5/988775b6b2c91442",
                 "LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:loadbalancer/app/alb-testing-2/95e544fad78114e5",
-                "Port": 80,
+                "Port": 5432,
                 "Protocol": "HTTP",
                 "DefaultActions": [
                     {

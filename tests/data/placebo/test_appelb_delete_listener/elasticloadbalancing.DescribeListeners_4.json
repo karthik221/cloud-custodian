@@ -3,9 +3,9 @@
     "data": {
         "Listeners": [
             {
-                "ListenerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:listener/app/alb-testing-2/95e544fad78114e5/54de70d8fddcb64f",
+                "ListenerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:listener/app/alb-testing-2/95e544fad78114e5/03f45d496b908c2f",
                 "LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:644160558196:loadbalancer/app/alb-testing-2/95e544fad78114e5",
-                "Port": 80,
+                "Port": 8082,
                 "Protocol": "HTTP",
                 "DefaultActions": [
                     {

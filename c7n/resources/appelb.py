@@ -1431,6 +1431,16 @@ class AppELBTargetGroupModifyAttributes(BaseAction):
 class AppELBDeleteListenerAction(BaseAction):
     """Action to delete listeners from an Application Load Balancer.
 
+    # Delete only those listeners caught by the filter  (default)
+    actions:
+    - type: delete-listener
+        scope: matched          #(default)
+
+    # Delete ALL listeners on every filtered LB
+    actions:
+    - type: delete-listener
+        scope: all
+
     :example:
 
     .. code-block:: yaml
@@ -1446,15 +1456,29 @@ class AppELBDeleteListenerAction(BaseAction):
               - type: delete-listener
     """
 
-    schema = type_schema('delete-listener')
+    def validate(self):
+        for f in self.manager.iter_filters():
+            if f.type == 'listener':
+                return self
+        raise PolicyValidationError(
+            "delete-listener action requires the listener filter %s" %
+            (self.manager.data,))
+
+    schema = type_schema(
+    'delete-listener',
+    scope={'enum': ['matched', 'all']})   # default is matched
     permissions = ("elasticloadbalancing:DeleteListener",)
 
     def process(self, albs):
         client = local_session(self.manager.session_factory).client('elbv2')
+        scope = self.data.get('scope', 'matched')
         for alb in albs:
             # You may want to filter listeners to delete only specific ones
-
-            listeners = alb.get('c7n:MatchedListeners', [])
+            if scope == 'all':
+                listeners = client.describe_listeners(
+                    LoadBalancerArn=alb['LoadBalancerArn'])['Listeners']
+            else:
+                listeners = alb.get('c7n:MatchedListeners', [])
 
             for listener in listeners:
                 try:

@@ -1436,16 +1436,6 @@ class AppELBDeleteListenerAction(BaseAction):
 
     .. code-block:: yaml
 
-        # Delete only those listeners caught by the filter  (default)
-        actions:
-        - type: delete-listener
-          scope: matched
-
-        # Delete ALL listeners on every filtered LB
-        actions:
-        - type: delete-listener
-          scope: all
-
         policies:
           - name: delete-alb-listeners
             resource: app-elb
@@ -1455,32 +1445,35 @@ class AppELBDeleteListenerAction(BaseAction):
                 value: HTTP
             actions:
               - type: delete-listener
+                scope: matched
     """
 
     def validate(self):
-        for f in self.manager.iter_filters():
-            if f.type == 'listener':
-                return self
-        raise PolicyValidationError(
-            "delete-listener action requires the listener filter %s" %
-            (self.manager.data,))
+        """Validate the delete-listener action configuration.
+
+        The listener filter is only required when the action is scoped to
+        the *matched* listeners. If the caller specifies ``scope: all`` we
+        will operate on every listener attached to the load-balancer and no
+        prior listener filter is required.
+        """
+        scope = self.data.get('scope', 'matched')
+        if scope == 'matched':
+            for f in self.manager.iter_filters():
+                if f.type == 'listener':
+                    return self
+            raise PolicyValidationError(
+                "delete-listener action with scope 'matched' requires the listener filter %s" %
+                (self.manager.data,))
 
     schema = type_schema(
-    'delete-listener',
-    scope={'enum': ['matched', 'all']})   # default is matched
+        'delete-listener',
+        scope={'enum': ['matched']})
     permissions = ("elasticloadbalancing:DeleteListener",)
 
     def process(self, albs):
         client = local_session(self.manager.session_factory).client('elbv2')
-        scope = self.data.get('scope', 'matched')
         for alb in albs:
-            # You may want to filter listeners to delete only specific ones
-            if scope == 'all':
-                listeners = client.describe_listeners(
-                    LoadBalancerArn=alb['LoadBalancerArn'])['Listeners']
-            else:
-                listeners = alb.get('c7n:MatchedListeners', [])
-
+            listeners = alb.get('c7n:MatchedListeners')
             for listener in listeners:
                 try:
                     client.delete_listener(

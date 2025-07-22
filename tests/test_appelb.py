@@ -820,52 +820,6 @@ class AppELBTest(BaseTest):
                 }
             )
 
-    def test_appelb_delete_listener_scope_all(self):
-        # Ensure delete-listener deletes all listeners when scope=all
-        self.patch(AppELB, "executor_factory", MainThreadExecutor)
-        session_factory = self.replay_flight_data("test_appelb_delete_listener_scope_all")
-        client = session_factory().client("elbv2")
-
-        calls = []
-
-        def fake_delete_listener(**kwargs):
-            calls.append(kwargs.get("ListenerArn"))
-
-        # Replace the client's delete_listener with our tracker
-        client.delete_listener = fake_delete_listener
-
-        # Stub describe_listeners to return two listeners
-        def fake_describe_listeners(**kwargs):
-            return {"Listeners": [
-                {"ListenerArn":
-                "arn:aws:elb:us-east-1:123:listener/1",
-                "Protocol": "HTTP", "Port": 5432},
-                {"ListenerArn":
-                "arn:aws:elb:us-east-1:123:listener/2",
-                "Protocol": "HTTP", "Port": 80},
-            ]}
-
-        client.describe_listeners = fake_describe_listeners
-
-        # Patch local_session so the action uses our patched client
-        with patch("c7n.resources.appelb.local_session",
-        return_value=type("Session", (), {"client": lambda self, svc: client})()):
-            p = self.load_policy(
-                {
-                    "name": "appelb-delete-listener-all",
-                    "resource": "app-elb",
-                    "filters": [
-                        {"type": "listener", "key": "[Protocol, Port]", "value": ["HTTP", 5432]}
-                    ],
-                    "actions": [{"type": "delete-listener", "scope": "all"}],
-                },
-                session_factory=session_factory,
-            )
-            p.run()
-
-        # Expect at least one deletion (all listeners are targeted)
-        self.assertGreaterEqual(len(calls), 1)
-
 
 class AppELBHealthcheckProtocolMismatchTest(BaseTest):
 

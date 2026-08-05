@@ -1,183 +1,208 @@
-You are a Principal AWS Solutions Architect and Senior Python Engineer with expertise in AWS SDK (boto3), CloudWatch, CloudWatch Logs Insights, Lambda, and AWS Organizations.
+You are a Principal AWS Solutions Architect, FinOps Architect, and Senior Python Engineer.
 
-Generate production-quality Python code to analyze AWS Lambda memory utilization across multiple AWS accounts.
+Design and implement a production-ready AWS Lambda Rightsizing and Cost Optimization platform.
 
-## Environment
+## Objective
 
-I have multiple AWS accounts already configured locally using named AWS CLI profiles.
+Analyze AWS Lambda execution history over configurable historical periods (90, 180, 270, and 365 days) to identify memory optimization opportunities and estimate monthly and annual cost savings while maintaining application performance.
 
-Example:
-
-aws configure list-profiles
-
-dev
-test
-uat
-prod
-shared-services
-network
-
-The script should use boto3.Session(profile_name=...) to authenticate instead of assuming IAM roles.
+The recommendations must be evidence-based using historical CloudWatch data.
 
 ## Input
 
-The script should read a CSV file with the following format:
+The application accepts a CSV file containing:
 
-Profile,Region,LambdaFunction
+AWS Profile
+AWS Account ID
+AWS Region
+Lambda Function Name
 
-prod,us-east-1,OrderProcessor
-prod,us-east-1,CustomerAPI
-test,us-west-2,InvoiceGenerator
-dev,eu-west-1,NotificationService
+The environment already has multiple AWS CLI named profiles configured.
 
-There can be hundreds or thousands of Lambda functions.
+The application must authenticate using boto3.Session(profile_name=...) instead of AssumeRole.
 
-## Requirements
+## Data Collection
 
-For every Lambda function:
+For every Lambda:
 
-1. Connect using the specified AWS profile.
+Retrieve configuration:
 
-2. Connect to the specified AWS region.
+- Memory Size
+- Runtime
+- Architecture
+- Timeout
+- Ephemeral Storage
+- Reserved Concurrency
+- Provisioned Concurrency
 
-3. Verify the Lambda exists.
+Retrieve CloudWatch Metrics:
 
-4. Retrieve Lambda configuration:
-   - Memory Size
-   - Runtime
-   - Timeout
-   - Architecture
-   - Ephemeral Storage
-   - Reserved Concurrency (if applicable)
-
-5. Retrieve CloudWatch metrics for configurable time windows:
-   - 90 days
-   - 180 days
-   - 270 days
-   - 365 days
-
-Collect:
 - Invocations
-- Average Duration
-- Maximum Duration
+- Duration
 - Errors
 - Throttles
 - Concurrent Executions
 
-6. Analyze CloudWatch Logs.
+Retrieve CloudWatch Logs using CloudWatch Logs Insights.
 
-Read the REPORT log entries and extract:
+Parse REPORT log entries to extract:
 
-- Memory Size
-- Max Memory Used
 - Duration
 - Billed Duration
+- Memory Size
+- Max Memory Used
 - Init Duration
 
-Use CloudWatch Logs Insights instead of FilterLogEvents for better performance.
+Compute:
 
-The query should compute:
-
-- Average Max Memory Used
+- Average Memory Used
 - Maximum Memory Used
 - P95 Memory Used
 - P99 Memory Used
 - Average Duration
-- Average Billed Duration
+- Maximum Duration
 - Average Init Duration
 - Total Executions
 
-7. Handle pagination automatically.
+If Lambda Insights is enabled, retrieve:
 
-8. Handle exceptions gracefully.
+- Average CPU utilization
+- Peak CPU utilization
+- Average Memory utilization
+- Peak Memory utilization
 
-If:
-- Lambda does not exist
-- Log group does not exist
-- Profile is invalid
-- Region is invalid
+Retrieve Cost Explorer data:
 
-Continue processing remaining Lambdas.
+- Monthly Lambda cost
+- Historical cost
+- Cost trend
 
-9. Execute efficiently.
+## Analytics
 
-Use ThreadPoolExecutor with configurable worker threads to process multiple Lambda functions concurrently.
+For every Lambda calculate:
 
-10. Logging
+- Average memory utilization
+- P95 memory utilization
+- Maximum memory utilization
+- Average CPU utilization
+- Peak CPU utilization
+- Average execution duration
+- Invocation trends
+- Cold start frequency
 
-Provide structured logging using the Python logging module.
+Determine:
 
-Include:
-- Profile
-- Region
-- Lambda name
-- Execution time
-- Errors
+- Over-provisioned Lambdas
+- Under-provisioned Lambdas
+- Idle Lambdas
+- Cold-start candidates
 
-11. Output
+## Recommendation Engine
 
-Generate a CSV containing:
+Recommend optimal memory allocation using:
 
-Profile
-AWS Account (retrieve using STS GetCallerIdentity)
-Region
-Lambda Name
-Runtime
-Memory Configured
-Average Memory Used
-Maximum Memory Used
-P95 Memory Used
-P99 Memory Used
-Average Duration
-Maximum Duration
-Average Billed Duration
-Average Init Duration
-Total Invocations
-Errors
-Throttles
-Concurrent Executions
+Configured Memory
 
-12. Also generate a JSON report.
+Historical P95 Memory
 
-13. Make the analysis period configurable using a command-line argument:
+Peak Memory
 
---days 90
---days 180
---days 270
---days 365
+CPU utilization
 
-14. The code should be modular.
+Execution duration
 
-Create separate functions for:
+Use a configurable safety factor (default 1.3x above P95 memory usage).
 
-- Reading CSV
-- Creating boto3 sessions
-- Fetching Lambda configuration
-- Fetching CloudWatch metrics
-- Executing Logs Insights queries
-- Parsing results
-- Exporting CSV
-- Exporting JSON
+Estimate new execution duration after memory adjustment and ensure the projected duration remains within the configured SLA.
 
-15. Performance
+Calculate:
 
-The solution should be capable of processing several thousand Lambda functions across multiple AWS profiles efficiently.
+- Current monthly cost
+- Projected monthly cost
+- Monthly savings
+- Annual savings
+- Optimization percentage
 
-16. Include:
+Assign a confidence score:
 
-- requirements.txt
-- README.md
-- Example CSV
-- Sample output
-- Logging configuration
+High
+Medium
+Low
 
-17. Follow Python best practices:
+based on workload stability and historical variance.
 
-- Type hints
-- Dataclasses where appropriate
-- Exception handling
-- Retry logic with exponential backoff
-- Clean code principles
-- PEP 8 formatting
+## Output
 
-Generate complete, production-ready code with comments explaining each major section.
+Generate:
+
+CSV report
+
+JSON report
+
+Executive summary
+
+Per-Lambda recommendations
+
+Savings dashboard data
+
+## Engineering Requirements
+
+Use Python 3.12
+
+Use boto3
+
+Use ThreadPoolExecutor for concurrency
+
+Use CloudWatch Logs Insights instead of FilterLogEvents
+
+Support pagination
+
+Implement retry logic with exponential backoff
+
+Use structured logging
+
+Use dataclasses
+
+Use type hints
+
+Follow PEP8
+
+Produce modular code with separate classes for:
+
+AWS Session Manager
+
+Lambda Collector
+
+CloudWatch Metrics Collector
+
+CloudWatch Logs Insights Collector
+
+Cost Explorer Collector
+
+Recommendation Engine
+
+Cost Calculator
+
+CSV Exporter
+
+JSON Exporter
+
+Generate:
+
+requirements.txt
+
+README.md
+
+Sample input CSV
+
+Sample output
+
+Architecture diagram (Mermaid)
+
+Sequence diagram
+
+Unit tests
+
+Deployment instructions
+
+The code should be capable of processing thousands of Lambda functions across hundreds of AWS accounts efficiently and be suitable for enterprise production deployment.

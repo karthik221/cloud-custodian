@@ -1,0 +1,183 @@
+You are a Principal AWS Solutions Architect and Senior Python Engineer with expertise in AWS SDK (boto3), CloudWatch, CloudWatch Logs Insights, Lambda, and AWS Organizations.
+
+Generate production-quality Python code to analyze AWS Lambda memory utilization across multiple AWS accounts.
+
+## Environment
+
+I have multiple AWS accounts already configured locally using named AWS CLI profiles.
+
+Example:
+
+aws configure list-profiles
+
+dev
+test
+uat
+prod
+shared-services
+network
+
+The script should use boto3.Session(profile_name=...) to authenticate instead of assuming IAM roles.
+
+## Input
+
+The script should read a CSV file with the following format:
+
+Profile,Region,LambdaFunction
+
+prod,us-east-1,OrderProcessor
+prod,us-east-1,CustomerAPI
+test,us-west-2,InvoiceGenerator
+dev,eu-west-1,NotificationService
+
+There can be hundreds or thousands of Lambda functions.
+
+## Requirements
+
+For every Lambda function:
+
+1. Connect using the specified AWS profile.
+
+2. Connect to the specified AWS region.
+
+3. Verify the Lambda exists.
+
+4. Retrieve Lambda configuration:
+   - Memory Size
+   - Runtime
+   - Timeout
+   - Architecture
+   - Ephemeral Storage
+   - Reserved Concurrency (if applicable)
+
+5. Retrieve CloudWatch metrics for configurable time windows:
+   - 90 days
+   - 180 days
+   - 270 days
+   - 365 days
+
+Collect:
+- Invocations
+- Average Duration
+- Maximum Duration
+- Errors
+- Throttles
+- Concurrent Executions
+
+6. Analyze CloudWatch Logs.
+
+Read the REPORT log entries and extract:
+
+- Memory Size
+- Max Memory Used
+- Duration
+- Billed Duration
+- Init Duration
+
+Use CloudWatch Logs Insights instead of FilterLogEvents for better performance.
+
+The query should compute:
+
+- Average Max Memory Used
+- Maximum Memory Used
+- P95 Memory Used
+- P99 Memory Used
+- Average Duration
+- Average Billed Duration
+- Average Init Duration
+- Total Executions
+
+7. Handle pagination automatically.
+
+8. Handle exceptions gracefully.
+
+If:
+- Lambda does not exist
+- Log group does not exist
+- Profile is invalid
+- Region is invalid
+
+Continue processing remaining Lambdas.
+
+9. Execute efficiently.
+
+Use ThreadPoolExecutor with configurable worker threads to process multiple Lambda functions concurrently.
+
+10. Logging
+
+Provide structured logging using the Python logging module.
+
+Include:
+- Profile
+- Region
+- Lambda name
+- Execution time
+- Errors
+
+11. Output
+
+Generate a CSV containing:
+
+Profile
+AWS Account (retrieve using STS GetCallerIdentity)
+Region
+Lambda Name
+Runtime
+Memory Configured
+Average Memory Used
+Maximum Memory Used
+P95 Memory Used
+P99 Memory Used
+Average Duration
+Maximum Duration
+Average Billed Duration
+Average Init Duration
+Total Invocations
+Errors
+Throttles
+Concurrent Executions
+
+12. Also generate a JSON report.
+
+13. Make the analysis period configurable using a command-line argument:
+
+--days 90
+--days 180
+--days 270
+--days 365
+
+14. The code should be modular.
+
+Create separate functions for:
+
+- Reading CSV
+- Creating boto3 sessions
+- Fetching Lambda configuration
+- Fetching CloudWatch metrics
+- Executing Logs Insights queries
+- Parsing results
+- Exporting CSV
+- Exporting JSON
+
+15. Performance
+
+The solution should be capable of processing several thousand Lambda functions across multiple AWS profiles efficiently.
+
+16. Include:
+
+- requirements.txt
+- README.md
+- Example CSV
+- Sample output
+- Logging configuration
+
+17. Follow Python best practices:
+
+- Type hints
+- Dataclasses where appropriate
+- Exception handling
+- Retry logic with exponential backoff
+- Clean code principles
+- PEP 8 formatting
+
+Generate complete, production-ready code with comments explaining each major section.

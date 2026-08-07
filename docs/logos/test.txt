@@ -1,0 +1,150 @@
+Your job: discover what patterns actually exist in this corpus. Group the
+findings by ROOT CAUSE — the structural reason the defect exists. Not by
+vulnerability type. Do not use OWASP or CWE vocabulary anywhere.
+
+Grouping test: two findings belong together if ONE fix in ONE place would
+prevent both. If they need separate fixes, they are separate themes.
+
+Good theme: "internal service callers trusted without re-checking authorization"
+Bad theme: "SQL injection" — that is a symptom, not a cause
+Bad theme: "problems in the payments service" — repo-specific, not a mechanism
+
+Read everything before you name anything. Produce 12-25 themes.
+
+Write your answer as markdown, structured like this:
+
+## Themes
+
+### <Theme name>
+**What it is.** A paragraph explaining the mechanism — what the developer did or
+omitted, and why it produces exploitable defects.
+
+**Why I drew the line here.** Explain the boundary. What made you separate this
+from the nearest other theme rather than merging them? If it was a close call,
+say so.
+
+**What does NOT belong.** Name the theme this is most confusable with and give
+the test that distinguishes them.
+
+**Evidence.** Count, number of distinct repos, and 2-3 example issue IDs with a
+one-line note on each.
+
+**Fix shape.** One fix at one location, or a fix per repo? Where would the fix
+live?
+
+---
+
+After all themes, add these sections:
+
+## Themes I was unsure about
+Any theme you nearly merged with another, or nearly split in two, and why. Be
+specific about what evidence would settle it.
+
+## Findings I could not place
+List them with a short reason each. Do not force them into a theme.
+
+## What I noticed that does not fit the theme structure
+Anything else in the corpus worth knowing — clusters, oddities, patterns that
+cut across your themes.
+
+FINDINGS:
+[paste]
+============
+
+
+
+Below are three theme lists, each derived independently from a different sample
+of the same vulnerability corpus. Merge them into one final taxonomy.
+
+Merge rules:
+- Same mechanism under different names → merge, keep the clearer name
+- Appears in only one list with count under 5 → drop as sampling noise
+- Appears in two lists → keep only if combined count is 10 or more
+- Definition spans two mechanisms with different fixes → split it
+- Target 10-18 final themes
+- Themes must be mutually exclusive: any finding has exactly one best fit
+- Add one catch-all coded OTHER, ranked last
+
+Write your answer in two parts.
+
+PART 1 — Merge reasoning (markdown)
+
+For each merge decision, explain what you combined and why you judged them the
+same mechanism. For each drop, say which list it came from and its count. For
+each split, explain what two things were tangled together.
+
+Then flag: which final themes are still shaky? Where did the three runs
+disagree most? What should be watched during classification?
+
+PART 2 — Frozen taxonomy (one JSON object, in a code block, nothing after it)
+
+{
+  "version": "v1",
+  "themes": [
+    {
+      "code": "UPPER_SNAKE_MAX_4_WORDS",
+      "name": "<max 8 words>",
+      "definition": "<max 30 words: what must be true to belong>",
+      "not_this": "<max 20 words: nearest confusable theme + the distinguishing test>",
+      "examples": ["<issue id>", "<issue id>"],
+      "rank": <int, 1 wins ties>,
+      "expected_fix_locus": "APP_CODE|SHARED_LIB|CONFIG|IAC|PLATFORM|PROCESS"
+    }
+  ]
+}
+
+Rank so that the theme whose enforcement would prevent the defect EARLIEST in
+the lifecycle wins ties.
+
+LIST A:
+[paste Stage 1 output A]
+
+LIST B:
+[paste Stage 1 output B]
+
+LIST C:
+[paste Stage 1 output C]
+
+
+==========
+
+
+You are a security triage classifier. Assign each finding to exactly one theme
+from the taxonomy below.
+
+TAXONOMY (frozen v1)
+[paste the JSON block from Stage 2 Part 2, verbatim, identical on every call]
+
+How to decide:
+
+1. Classify on the ROOT CAUSE the issue states, not the symptom it produced.
+   If the issue says a shared storage helper skipped normalization, the theme is
+   the shared-helper theme — not a path-traversal theme.
+
+2. Apply each candidate theme's `definition`, then its `not_this` test. If two
+   themes still fit, the lower `rank` wins.
+
+3. Use OTHER only when no named theme fits at all. Never invent a theme.
+
+4. Do not infer facts the issue does not state. If no root cause is given, set
+   root_cause_stated to false and lower your confidence.
+
+5. entry_point, origin, and fix_locus are independent of the theme. Judge each
+   on its own — do not derive one from another.
+
+6. origin_artifact: if the issue names a specific shared library, template,
+   scaffold, base image, or framework as the source, copy that name exactly as
+   written. If it names none, use null. Do not guess a name.
+
+7. confidence is your confidence in the theme assignment specifically.
+
+FINDINGS:
+[paste]
+
+==========================
+
+
+
+
+
+

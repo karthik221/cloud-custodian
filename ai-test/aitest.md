@@ -9,19 +9,6 @@ Enterprise architecture / production readiness
 Multi-cloud security
 
 
-
-As a Senior Agentic Architect, I would approach this workshop as an exercise to establish an Enterprise Agent Security, Governance, Identity and Operational Control Framework, rather than simply defining security controls for individual agent platforms.
-
-The objective should be to establish a common security baseline across AWS AgentCore, Azure AI Foundry, Copilot Studio and bespoke agent implementations, while allowing each platform to implement those controls using its native capabilities.
-
-Your three foundational technologies have distinct responsibilities:
-
-| Technology         | Primary responsibility                     | What it should enforce                                                                       |
-| ------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| Microsoft Entra ID | Agent and user identity                    | Authentication, workload identity, user identity, token issuance and identity lifecycle      |
-| Kong AI Gateway    | Central AI traffic control                 | LLM routing, provider access, model allowlisting, rate limits, quotas and policy enforcement |
-| Dynatrace          | Observability and operational intelligence | Distributed tracing, performance, errors, security signals, anomalies and operational alerts |
-
 One particularly important architectural decision is that not using AWS AgentCore Identity does not mean identity management is absent. It means you must explicitly design the integration between Entra ID, AWS IAM, AgentCore runtime, downstream resources and tool identities.
 
 I would also establish one important distinction:

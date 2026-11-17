@@ -1,0 +1,215 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyDirectBedrockInferenceExceptKong",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock-mantle:CreateInference"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalArn": "arn:aws:iam::111122223333:role/KongBedrockInvokeRole"
+        }
+      }
+    },
+    {
+      "Sid": "DenyAgentCoreOutsideApprovedRegions",
+      "Effect": "Deny",
+      "Action": "bedrock-agentcore:*",
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": [
+            "us-east-1",
+            "us-west-2"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "DenyAgentCoreRuntimeAndCodeInterpreterWithoutSubnets",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock-agentcore:CreateAgentRuntime",
+        "bedrock-agentcore:UpdateAgentRuntime",
+        "bedrock-agentcore:CreateCodeInterpreter"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "bedrock-agentcore:subnets": "true"
+        }
+      }
+    },
+    {
+      "Sid": "DenyAgentCoreRuntimeAndCodeInterpreterWithoutSecurityGroups",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock-agentcore:CreateAgentRuntime",
+        "bedrock-agentcore:UpdateAgentRuntime",
+        "bedrock-agentcore:CreateCodeInterpreter"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "bedrock-agentcore:securityGroups": "true"
+        }
+      }
+    },
+    {
+      "Sid": "RequireBedrockCostCenterTag",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:CreateKnowledgeBase",
+        "bedrock:CreateModelCustomizationJob",
+        "bedrock:CreateProvisionedModelThroughput",
+        "bedrock-agentcore:CreateAgentRuntime",
+        "bedrock-agentcore:CreateCodeInterpreter",
+        "bedrock-agentcore:CreateGateway",
+        "bedrock-agentcore:CreateMemory"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/CostCenter": "true"
+        }
+      }
+    },
+    {
+      "Sid": "RequireBedrockOwnerTag",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:CreateKnowledgeBase",
+        "bedrock:CreateModelCustomizationJob",
+        "bedrock:CreateProvisionedModelThroughput",
+        "bedrock-agentcore:CreateAgentRuntime",
+        "bedrock-agentcore:CreateCodeInterpreter",
+        "bedrock-agentcore:CreateGateway",
+        "bedrock-agentcore:CreateMemory"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/Owner": "true"
+        }
+      }
+    },
+    {
+      "Sid": "RequireBedrockEnvironmentTag",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:CreateKnowledgeBase",
+        "bedrock:CreateModelCustomizationJob",
+        "bedrock:CreateProvisionedModelThroughput",
+        "bedrock-agentcore:CreateAgentRuntime",
+        "bedrock-agentcore:CreateCodeInterpreter",
+        "bedrock-agentcore:CreateGateway",
+        "bedrock-agentcore:CreateMemory"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/Environment": "true"
+        }
+      }
+    },
+    {
+      "Sid": "RequireBedrockDataClassificationTag",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:CreateKnowledgeBase",
+        "bedrock:CreateModelCustomizationJob",
+        "bedrock:CreateProvisionedModelThroughput",
+        "bedrock-agentcore:CreateAgentRuntime",
+        "bedrock-agentcore:CreateCodeInterpreter",
+        "bedrock-agentcore:CreateGateway",
+        "bedrock-agentcore:CreateMemory"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/DataClassification": "true"
+        }
+      }
+    },
+    {
+      "Sid": "RequireCMKForSupportedAgentCoreResources",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock-agentcore:CreateMemory",
+        "bedrock-agentcore:CreateGateway",
+        "bedrock-agentcore:UpdateGateway"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "bedrock-agentcore:KmsKeyArn": "true"
+        }
+      }
+    },
+    {
+      "Sid": "DenyProvisionedThroughputCreationAndUpdates",
+      "Effect": "Deny",
+      "Action": [
+        "bedrock:CreateProvisionedModelThroughput",
+        "bedrock:UpdateProvisionedModelThroughput"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyAgentCoreBrowserOperations",
+      "Effect": "Deny",
+      "Action": "bedrock-agentcore:*Browser*",
+      "Resource": "*"
+    },
+    {
+      "Sid": "ProtectAuditAndDetectionControls",
+      "Effect": "Deny",
+      "Action": [
+        "cloudtrail:StopLogging",
+        "cloudtrail:DeleteTrail",
+        "cloudtrail:UpdateTrail",
+        "cloudtrail:PutEventSelectors",
+        "cloudtrail:PutInsightSelectors",
+        "cloudtrail:DeleteEventDataStore",
+        "cloudtrail:StopEventDataStoreIngestion",
+        "cloudtrail:UpdateEventDataStore",
+        "config:StopConfigurationRecorder",
+        "config:DeleteConfigurationRecorder",
+        "config:PutConfigurationRecorder",
+        "config:DeleteDeliveryChannel",
+        "config:PutDeliveryChannel",
+        "guardduty:DeleteDetector",
+        "guardduty:UpdateDetector",
+        "guardduty:DisableOrganizationAdminAccount",
+        "guardduty:DisassociateFromAdministratorAccount",
+        "guardduty:StopMonitoringMembers",
+        "guardduty:DeleteMembers",
+        "guardduty:DisassociateMembers",
+        "guardduty:UpdateOrganizationConfiguration"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalArn": "arn:aws:iam::444455556666:role/OrgSecurityAdmin"
+        }
+      }
+    }
+  ]
+}
+
+
+
+
+==============
+
+A few important limits to this template:
+- CMK enforcement is partial. AgentCore exposes a KMS condition key for the listed supported resources. The current Bedrock Knowledge Base and model customization APIs specify their KMS keys in request fields; an SCP cannot enforce those fields unless AWS exposes a corresponding IAM condition key. Enforce those through a deployment pipeline or CloudFormation hook that validates the key before creating the resource. AgentCore authorization reference, Bedrock Knowledge Base encryption, custom model encryption.
+- The VPC statements require subnet and security-group values, but do not restrict them to approved IDs. Add the AgentCore subnet and security-group conditions if only specific VPCs are allowed. AgentCore VPC condition keys
+- The tag statements require the presence of each tag, not an approved value. They also cover only the listed create actions; expand them to match your resource inventory.
+- The audit-control Deny has an exception for the example security-admin role. Replace it with the exact, tightly governed role ARN or ARNs used by your security team.
+- The exception only prevents the SCP from denying that role’s inference calls. Its IAM policy must still limit models, Regions, and Guardrails.

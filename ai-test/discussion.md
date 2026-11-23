@@ -598,3 +598,83 @@ As the Senior Lead, I would make one thing particularly clear at the beginning:
 That statement sets the right tone. It establishes that the development teams own their workload direction, Microsoft brings its platform expertise, and you are facilitating the strategic alignment between the two.
 
 It also positions you as a cloud strategy and architecture leader rather than simply the person coordinating a vendor meeting.
+
+
+========================
+
+=================================
+
+Thanks, everyone. The goal today is to agree on a reusable way for teams to build and operate agents on Amazon Bedrock AgentCore. We’re not trying to choose one business use case or lock every team into one agent framework. We’re defining the shared platform patterns that let teams build safely and consistently.
+
+The constraints we’re designing around are: model inference to Bedrock goes through Kong; agent identities and API authorization use Entra ID service principals; Dynatrace is our observability destination; and AgentCore Gateway is out of scope. Agents can also have IAM execution roles for AWS resource access.
+
+I’d like us to leave with agreement on the three patterns, the identity model, how tools and optional memory fit, and the scope of a first proof of concept.”
+1:30–3:00 | Explain the architecture principles
+“The key design choice is to separate responsibilities. AgentCore Runtime hosts and runs agent code. Kong is the model access path. Entra establishes who is calling which API. IAM gives an agent permissions to AWS resources. Dynatrace is where we want teams to follow operational traces.
+
+That means an agent should not have Bedrock credentials and call Bedrock directly. It should use a shared model client configured for Kong. It also means an Entra service principal and an AWS IAM role are different identities serving different purposes.
+
+We should standardize these integration points and operational expectations, while leaving room for teams to choose the framework and the business logic that fits their work.”
+3:00–5:30 | Walk through the single-agent pattern
+“The simplest pattern is one application calling one agent hosted on AgentCore Runtime.
+
+The calling application presents an Entra access token intended for the entry-agent API. The runtime validates the token. The agent handles the request and, when it needs a model, calls Kong. Kong applies the organization’s model policies and routes to Bedrock.
+
+The agent’s Entra identity is not the same thing as the application’s identity. The caller has its own identity. The agent has its own service principal for outbound calls, such as calling Kong or an MCP server. The agent also has an AWS IAM execution role, used only for permitted AWS resource access.
+
+For the first pattern, we should show one trace across the request path: application, AgentCore Runtime, Kong, Bedrock, and back. This establishes the foundation for the more complex patterns.”
+5:30–8:00 | Explain multi-agent collaboration
+“The second pattern introduces a supervisor or entry agent and one or more worker agents. The supervisor accepts the request, delegates a bounded subtask to a worker, and combines the result.
+
+Each deployable agent has its own Entra service principal. When the entry agent calls a worker, it requests a token for the worker API using its own identity. When the worker calls Kong, it gets a token intended for the Kong API using the worker’s identity. Tokens are audience-specific; we shouldn’t reuse a token issued for one API at another API.
+
+We should begin with a small, explicit workflow: one supervisor, one worker, a defined request and response schema, and a cap on delegation and tool calls. This gives us a useful multi-agent demonstration without starting with open-ended agent-to-agent routing.”
+8:00–10:00 | Make the identity and Conditional Access separation clear
+“I want to be precise about what we mean by ‘the agents use Entra.’
+
+Each agent should have a dedicated workload identity, separate from the calling application and separate from other agents. The identity team can decide the registration and naming conventions, but the design should preserve one identity per independently deployable agent.
+
+Conditional Access for workload identities belongs in Entra. It is a separate policy scope from user Conditional Access. Entra evaluates the applicable policy when the service principal requests a token. AgentCore then validates the token when it receives the API call. Those are related controls, but they are not the same step.
+
+We should ask the identity team to confirm the app roles or claims, audiences, token version, credential approach, and Conditional Access scope. If location-based policies are required, we need to verify that agent token requests come from a suitable controlled egress path.”
+10:00–12:00 | Cover MCP and tool calls
+“The third pattern adds tools. We should distinguish local, approved tools from remote MCP tools.
+
+A local tool runs within the agent’s environment. An MCP tool is offered by a separately managed MCP server. In both cases, the model should only be able to request tools that the platform or application has explicitly allowed. The agent validates the tool name and arguments, applies timeouts and output limits, and records the result.
+
+For MCP, the agent uses its own identity to request a token for the MCP API. The MCP server makes the final authorization decision for each tool. We should not let the agent discover arbitrary servers or URLs.
+
+For the PoC, I suggest one harmless local tool and one optional mocked MCP tool. We can prove the integration and authorization pattern without connecting a production system or giving the agent consequential permissions.”
+12:00–14:30 | Place memory and knowledge in the picture
+“Memory and knowledge are separate capabilities, and teams should adopt them only when the use case needs them.
+
+Short-term memory is session context: what has been said in the current conversation. Long-term memory is durable information such as a preference or summary that may be useful in a later session. A knowledge base is different: it contains approved source material that the agent retrieves to answer a question. Workflow state is different again; it tracks process progress, such as which approval step is complete.
+
+There’s an important policy detail here. If every model inference must go through Kong, we need to review managed memory strategies and managed knowledge-base ingestion carefully. Some managed features can make model or embedding calls outside the agent’s Kong client path.
+
+For the PoC, I suggest memory is off by default. We can demonstrate short-term storage if desired, and keep long-term summaries behind Kong by having the agent generate them through the Kong client before storing them. For knowledge, retrieve source chunks separately and send those chunks to the model through Kong. Let’s treat any managed model calls outside Kong as an exception that needs an explicit decision.”
+14:30–16:00 | Observability and operations
+“Teams need to be able to follow one request end to end. We should use OpenTelemetry instrumentation in agent code and configure Kong telemetry to preserve trace context. The shared telemetry should include agent name, environment, workflow, model alias, tool name, request ID, latency, and outcome.
+
+We should avoid putting credentials, access tokens, or sensitive prompts and responses into telemetry by default.
+
+There is an integration task to resolve: AgentCore’s service-generated telemetry is delivered to CloudWatch, while application and Kong telemetry can be sent through OTLP to Dynatrace. If Dynatrace needs to be the unified operational view, we need to agree on how the CloudWatch telemetry reaches Dynatrace and confirm the traces can be correlated.”
+16:00–18:00 | Propose the PoC and framework approach
+“For the reference PoC, I recommend LangGraph for the multi-agent workflow because its state and transitions are explicit and reviewable. I’m proposing that as the example implementation, not as the required framework for every team. AgentCore Runtime can host different frameworks, and Strands is a strong AWS-oriented alternative.
+
+The part we should standardize is the platform contract: the request and response shape, Kong model client, Entra token provider, MCP client, tool authorization, memory and knowledge interfaces, and OpenTelemetry fields. That allows a team to use a different framework without changing the platform controls.
+
+The PoC should deliver two runnable variants: a single agent and an entry-plus-worker multi-agent flow. Both should call a mock model locally and use Kong for real inference. MCP should be optional, with a mocked path for local runs. The PoC should also show a real or mocked Entra token boundary and a trace that connects the components.”
+18:00–20:00 | Close with decisions and next steps
+“To close, I’d like us to confirm these decisions:
+1. Do we agree on the single-agent, supervisor-worker, and MCP workflow patterns?
+2. Does the identity team agree that each independently deployed agent gets its own Entra workload identity, with separate identities for calling applications?
+3. What token claims, audiences, app roles, credentials, and workload Conditional Access rules should the PoC use?
+4. What Kong endpoint and authentication method should the model client target?
+5. Which Dynatrace OTLP path should we use, and how will we bring in AgentCore’s CloudWatch telemetry?
+6. Are we comfortable with LangGraph as the reference PoC while keeping framework choice open?
+7. Who will own the first single-agent and multi-agent demonstrations?
+Once those owners and decisions are clear, we can build the paved road and run the PoC against these acceptance points: model inference only through Kong; caller and agent identities kept distinct; tools explicitly authorized; optional features disabled by default; and a trace that lets us investigate a request across the workflow.”
+
+Suggested closing line: “The outcome we want is a repeatable platform pattern that teams can adopt without inheriting each other’s business logic or being forced into one framework.”
+
